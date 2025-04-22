@@ -10,15 +10,18 @@ bot = telebot.TeleBot(API_TOKEN)
 @bot.message_handler(commands=["start", "help"]) # Приветственное сообщение, кратко о назначении бота и основных функциях
 def bot_starting_msg(message):
     help_message = """
-    Доступные команды
-    /start /help -- Справка
-    /new_student -- Добавить студента в БД
-    /del_student -- Удалить студента из БД
-    /list_students -- Список всех студентов
-    /info_student -- Информация о студенте
-    /add_truancy -- Добавить прогул
-    /del_truancy -- Удалить прогул
+Доступные команды:
+
+/start Список команд
+/help - Список команд
+/new_student - Добавить студента в БД
+/del_student - Удалить студента из БД
+/list_students - Список всех студентов
+/info_student - Информация о студенте
+/add_truancy - Добавить прогул
+/del_truancy - Удалить прогул
     """
+    
     bot.send_message(chat_id=message.chat.id, text=help_message)
 
 @bot.message_handler(commands=["new_student"]) # Добавить нового студента
