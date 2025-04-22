@@ -1,7 +1,0 @@
-.vscode/
-venv/
-__pycache__/
-*~
-config.py
-test.py
-database.db
