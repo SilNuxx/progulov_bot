@@ -1,7 +1,14 @@
 .vscode/
 venv/
 __pycache__/
+
 *~
+*.db
+*.db3
+*.sl3
+*.sqlite
+*.sqlite3
+*.db-journal
+
 config.py
 test.py
-database.db
