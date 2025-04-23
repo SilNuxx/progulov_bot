@@ -12,7 +12,7 @@ with sqlite3.connect(database_file) as db:
     PRIMARY KEY(student_id AUTOINCREMENT)
     );""")
     cur.execute("""
-    CREATE TABLE Truancy (
+    CREATE TABLE IF NOT EXISTS Truancy (
 	truancy_date INTEGER NOT NULL,
 	student_id INTEGER FOREGIN KEY NOT NULL,
     truancy_number INTEGER NOT NULL,
@@ -29,7 +29,10 @@ def db_add_student(student_name): # Добавить студента в спи�
         cur.execute(f"""INSERT INTO Student(student_name) VALUES ('{student_name}');""")
 
 def db_del_student(student_id): # Удалить студента из списка
-    pass
+    with sqlite3.connect(database_file) as db:
+        cur = db.cursor()
+
+        cur.execute(f"""DELETE FROM Student WHERE student_id = {student_id}""")
 
 def db_get_all_sort_student_list(): # Вывести информацию по всем студентам в сортированном по алфавиту виде
     with sqlite3.connect(database_file) as db:
@@ -39,26 +42,29 @@ def db_get_all_sort_student_list(): # Вывести информацию по �
         return cur.fetchall()
 
 def db_get_student(student_id): # Вывести информацию по одному из студентов
-    pass
+    with sqlite3.connect(database_file) as db:
+        cur = db.cursor()
+
+        cur.execute(f"""SELECT * FROM Student WHERE student_id = {student_id};""")
+        return cur.fetchone()
 
 # Работа с учётом прогулов
 
-def db_add_truancy(student_id, reason, type, unixpoch): # Отметить прогул
-    pass
+def db_add_truancy(student_id, number, truancy_type, unixepoch): # Отметить прогул
+    with sqlite3.connect(database_file) as db:
+        cur = db.cursor()
 
-def db_del_truancy(truancy_id): # Отменить прогул
-    pass
+        cur.execute(f"""INSERT INTO Truancy(truancy_date, student_id, truancy_number, truancy_type) VALUES ({unixepoch}, {student_id}, {number}, '{truancy_type}');""")
 
+def db_del_truancy(unixepoch, student_id): # Отменить прогул
+    with sqlite3.connect(database_file) as db:
+        cur = db.cursor()
 
-# '''
-# Таблица: Прогулы
+        cur.execute(f"""DELETE FROM Truancy WHERE truancy_date = {unixepoch} AND student_id = {student_id}""")
 
-# Столбцы: 
-# '''
+def db_list_truancy():
+    with sqlite3.connect(database_file) as db:
+        cur = db.cursor()
 
-# '''
-# Сортировка по алфавиту только при выводе
-# '''
-
-# /add 1 1 12.
-# command, int(student), int(count), datetime.date(date), args = message.split(" ") 
+        cur.execute("""SELECT date(truancy_date, 'unixepoch'), Truancy.student_id, student_name, truancy_number, truancy_type FROM Truancy INNER JOIN Student ON Student.student_id = Truancy.student_id""")
+        return cur.fetchall()
