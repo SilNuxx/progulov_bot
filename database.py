@@ -2,6 +2,7 @@ import sqlite3
 
 database_file = r"database.db"
 
+# Создание БД
 with sqlite3.connect(database_file) as db:
     cur = db.cursor()
 
@@ -12,7 +13,7 @@ with sqlite3.connect(database_file) as db:
     PRIMARY KEY(student_id AUTOINCREMENT)
     );""")
     cur.execute("""
-    CREATE TABLE Truancy (
+    CREATE TABLE IF NOT EXISTS Truancy (
 	truancy_date INTEGER NOT NULL,
 	student_id INTEGER FOREGIN KEY NOT NULL,
     truancy_number INTEGER NOT NULL,
@@ -21,44 +22,33 @@ with sqlite3.connect(database_file) as db:
 	FOREIGN KEY(student_id) REFERENCES Student(student_id)
     );""")
 
-# Работа со списком студентов
-def db_add_student(student_name): # Добавить студента в список
+# Добавить студента
+def db_add_student(student_name):
     with sqlite3.connect(database_file) as db:
         cur = db.cursor()
 
         cur.execute(f"""INSERT INTO Student(student_name) VALUES ('{student_name}');""")
 
-def db_del_student(student_id): # Удалить студента из списка
+# Удалить студента
+def db_del_student(student_id): 
     pass
 
-def db_get_all_sort_student_list(): # Вывести информацию по всем студентам в сортированном по алфавиту виде
+# Получить сортированный по именам список студентов
+def db_get_all_sort_student_list(): 
     with sqlite3.connect(database_file) as db:
         cur = db.cursor()
 
         cur.execute("""SELECT * FROM Student ORDER BY student_name ASC;""")
         return cur.fetchall()
 
-def db_get_student(student_id): # Вывести информацию по одному из студентов
+# Вывести информацию по одному из студентов
+def db_get_student_info(student_id): 
     pass
 
-# Работа с учётом прогулов
-
+# Добавить прогул
 def db_add_truancy(student_id, reason, type, unixpoch): # Отметить прогул
     pass
 
+# Удалить прогул
 def db_del_truancy(truancy_id): # Отменить прогул
     pass
-
-
-# '''
-# Таблица: Прогулы
-
-# Столбцы: 
-# '''
-
-# '''
-# Сортировка по алфавиту только при выводе
-# '''
-
-# /add 1 1 12.
-# command, int(student), int(count), datetime.date(date), args = message.split(" ") 

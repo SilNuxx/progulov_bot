@@ -1,8 +1,10 @@
 import database
 
+# Добавить студента
 def add_student(msg):
     database.db_add_student(msg.text)
 
+# Вывести список студентов
 def get_all_students():
     list_student = database.db_get_all_sort_student_list()
 
