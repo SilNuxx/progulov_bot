@@ -68,12 +68,3 @@ def db_list_truancy():
 
         cur.execute("""SELECT date(truancy_date, 'unixepoch'), Truancy.student_id, student_name, truancy_number, truancy_type FROM Truancy INNER JOIN Student ON Student.student_id = Truancy.student_id""")
         return cur.fetchall()
-
-def console(command): # Для проверки, чтобы не городить миллион ненужных функций
-    with sqlite3.connect(database_file) as db:
-        cur = db.cursor()
-        if "SELECT" in command:
-            cur.execute(command)
-            return cur.fetchall()
-        else:
-            cur.execute(command)
