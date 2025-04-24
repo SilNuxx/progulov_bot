@@ -68,5 +68,5 @@ def db_list_truancy():
     with sqlite3.connect(database_file) as db:
         cur = db.cursor()
 
-        cur.execute("""SELECT date(truancy_date, 'unixepoch'), Truancy.student_id, student_name, truancy_number, truancy_type FROM Truancy INNER JOIN Student ON Student.student_id = Truancy.student_id;""")
+        cur.execute("""SELECT date(truancy_date, 'unixepoch', '+3 hours'), Truancy.student_id, student_name, truancy_number, truancy_type FROM Truancy INNER JOIN Student ON Student.student_id = Truancy.student_id;""")
         return cur.fetchall()
