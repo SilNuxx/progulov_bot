@@ -1,18 +1,8 @@
 import database as db
-
-last_user_massage = ""
-
-# Добавить студента
-def add_student(msg):
-    student_name = msg.text
-    db.db_add_student(student_name.strip())
-
-# Удалить студента
-def del_student(msg):
-    db.db_del_student(msg.text)
+from datetime import datetime, timezone, timedelta
 
 # Вывести список студентов
-def get_all_students():
+def student_list():
     list_student = db.db_get_all_sort_student_list()
 
     out_str = "ID | NAME\n\n"
@@ -21,8 +11,42 @@ def get_all_students():
 
     return out_str
 
-def get_last_user_message(msg):
-    last_user_massage = msg.text
+# Получить информацию о студенте
+def student_info(student_id):
+    student_info = db.db_get_student(student_id)
+    out_str = f"ID: {student_info[0]}\nNAME: {student_info[1]}"
+    return out_str
 
-def return_user_message():
-    return last_user_massage
+# Добавить студента
+def student_add(student_name):
+    db.db_add_student(student_name)
+
+# Удалить студента
+def student_del(student_id):
+    db.db_del_student(student_id)
+
+
+# Список прогулов
+def truancy_list():
+    list_truancy = db.db_list_truancy()
+
+    out_str = "DATE | ID | NAME | NUMBER | TYPE\n\n"
+    for i in list_truancy:
+        # for value in truancy: m                
+        out_str += f" {i[0]} | {i[1]} | {i[2]} | {i[3]} | {i[4]}\n"
+
+    return out_str
+
+# Добавить прогул
+def truancy_add(student_id, truancy_number, truancy_type, truancy_date):
+    truancy_date = datetime.strptime(truancy_date, r"%d-%m-%y")
+    truancy_date = truancy_date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone(timedelta(hours=3)))
+    truancy_date = int(truancy_date.timestamp())
+    db.db_add_truancy(int(student_id), truancy_number, truancy_type, int(truancy_date))
+
+# Удалить прогул
+def truancy_del(truancy_date, student_id):
+    truancy_date = datetime.strptime(truancy_date, r"%d-%m-%y")
+    truancy_date = truancy_date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone(timedelta(hours=3)))
+    truancy_date = int(truancy_date.timestamp())
+    db.db_del_truancy( int(truancy_date), int(student_id))
