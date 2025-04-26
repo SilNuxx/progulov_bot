@@ -27,6 +27,7 @@ def bot_starting_msg(message):
 /student_info - Информация о студенте
 /student_add - Добавить студента
 /student_del - Удалить студента
+/stop - Прервать действие
 """
     
     bot.send_message(chat_id=message.chat.id, text=help_message)
@@ -49,24 +50,30 @@ def bot_student_info_print(message):
 # Добавить студента
 @bot.message_handler(commands=["student_add"]) 
 def bot_student_add_get_id(message):
-    bot.send_message(chat_id=message.chat.id, text="Введите имя студента")
+    bot.send_message(chat_id=message.chat.id, text="Введите имя студента\n/stop - Прервать действие")
     bot.register_next_step_handler(message, bot_student_add)
 
 def bot_student_add(message):
     student_name = message.text.strip()
-    middle.student_add(student_name)
-    bot.send_message(chat_id=message.chat.id, text="Студент добавлен")
+    if student_name == "/stop":
+        bot.send_message(chat_id=message.chat.id, text="Действие прервано")
+    else:
+        middle.student_add(student_name)
+        bot.send_message(chat_id=message.chat.id, text="Студент добавлен")
 
 # Удалить студента
 @bot.message_handler(commands=["student_del"]) 
 def bot_student_del_get_id(message):
-    bot.send_message(chat_id=message.chat.id, text="Введите ID студента")
+    bot.send_message(chat_id=message.chat.id, text="Введите ID студента\n/stop - Прервать действие")
     bot.register_next_step_handler(message, bot_student_del)
 
 def bot_student_del(message):
     student_id = message.text.strip()
-    middle.student_del(student_id)
-    bot.send_message(chat_id=message.chat.id, text="Студент удалён")
+    if student_id == "/stop":
+        bot.send_message(chat_id=message.chat.id, text="Действие прервано")
+    else:
+        middle.student_del(student_id)
+        bot.send_message(chat_id=message.chat.id, text="Студент удалён")
 
 #  Список всех прогулов
 @bot.message_handler(commands=["truancy_list_all"]) 
@@ -76,59 +83,80 @@ def bot_truancy_list_all(message):
 #  Список прогулов за месяц
 @bot.message_handler(commands=["truancy_list_month"]) 
 def bot_truancy_list_month_get_month(message):
-    bot.send_message(chat_id=message.chat.id, text="Введите месяц и год\nММ-ГГ")
+    bot.send_message(chat_id=message.chat.id, text="Введите месяц и год\nММ-ГГ\n/stop - Прервать действие")
     bot.register_next_step_handler(message, bot_truancy_list_month)
 
 def bot_truancy_list_month(message):
     month = message.text.strip().lower()
-    bot.send_message(chat_id=message.chat.id, text=middle.truancy_list_month(month))
+    if month == "/stop":
+        bot.send_message(chat_id=message.chat.id, text="Действие прервано")
+    else:
+        bot.send_message(chat_id=message.chat.id, text=middle.truancy_list_month(month))
 
 # Добавить прогул
 @bot.message_handler(commands=["truancy_add"]) 
 def bot_truancy_add_get_id(message):
-    bot.send_message(chat_id=message.chat.id, text="Введите ID студента")
+    bot.send_message(chat_id=message.chat.id, text="Введите ID студента\n/stop - Прервать действие")
     bot.register_next_step_handler(message, bot_truancy_add_get_truancy_date)
 
 def bot_truancy_add_get_truancy_date(message):
     global student_id
     student_id = message.text.strip()
-    bot.send_message(chat_id=message.chat.id, text="Введите дату пропуска\nДД-ММ-ГГ")
-    bot.register_next_step_handler(message, bot_truancy_add_get_truancy_number)
+    if student_id == "/stop":
+        bot.send_message(chat_id=message.chat.id, text="Действие прервано")
+    else:
+        bot.send_message(chat_id=message.chat.id, text="Введите дату пропуска\nДД-ММ-ГГ\n/stop - Прервать действие")
+        bot.register_next_step_handler(message, bot_truancy_add_get_truancy_number)
     
 def bot_truancy_add_get_truancy_number(message):
     global truancy_date
     truancy_date = message.text.strip()
-    bot.send_message(chat_id=message.chat.id, text="Введите количество пропущенных занятий")
-    bot.register_next_step_handler(message, bot_truancy_add_get_truancy_type)
+    if truancy_date == "/stop":
+        bot.send_message(chat_id=message.chat.id, text="Действие прервано")
+    else:
+        bot.send_message(chat_id=message.chat.id, text="Введите количество пропущенных занятий\n/stop - Прервать действие")
+        bot.register_next_step_handler(message, bot_truancy_add_get_truancy_type)
 
 def bot_truancy_add_get_truancy_type(message):
     global truancy_number
-    truancy_number = int(message.text)
-    bot.send_message(chat_id=message.chat.id, text="Введите тип/причину пропуска")
-    bot.register_next_step_handler(message, bot_truancy_add_get_truancy)
+    truancy_number = message.text
+    if truancy_number == "/stop":
+        bot.send_message(chat_id=message.chat.id, text="Действие прервано")
+    else:
+        bot.send_message(chat_id=message.chat.id, text="Введите тип/причину пропуска\n/stop - Прервать действие")
+        bot.register_next_step_handler(message, bot_truancy_add_get_truancy)
 
 def bot_truancy_add_get_truancy(message):
     global truancy_type
     truancy_type = message.text.strip()
-    middle.truancy_add(student_id, truancy_number, truancy_type, truancy_date)
-    bot.send_message(chat_id=message.chat.id, text="Пропуск добавлен")
+    if truancy_type == "/stop":
+        bot.send_message(chat_id=message.chat.id, text="Действие прервано")
+    else:
+        middle.truancy_add(student_id, truancy_number, truancy_type, truancy_date)
+        bot.send_message(chat_id=message.chat.id, text="Пропуск добавлен")
 
 # Удалить прогул
 @bot.message_handler(commands=["truancy_del"]) 
 def bot_truancy_del_get_id(message):
-    bot.send_message(chat_id=message.chat.id, text="Введите ID студента")
+    bot.send_message(chat_id=message.chat.id, text="Введите ID студента\n/stop - Прервать действие")
     bot.register_next_step_handler(message, bot_truancy_del_get_truancy_date)
 
 def bot_truancy_del_get_truancy_date(message):
     global student_id
     student_id = message.text.strip()
-    bot.send_message(chat_id=message.chat.id, text="Введите дату пропуска\nДД-ММ-ГГ")
-    bot.register_next_step_handler(message, bot_truancy_del)
+    if student_id == "/stop":
+        bot.send_message(chat_id=message.chat.id, text="Действие прервано")
+    else:
+        bot.send_message(chat_id=message.chat.id, text="Введите дату пропуска\nДД-ММ-ГГ\n/stop - Прервать действие")
+        bot.register_next_step_handler(message, bot_truancy_del)
 
 def bot_truancy_del(message):
     global truancy_date
     truancy_date = message.text.strip()
-    middle.truancy_del(truancy_date, student_id)
-    bot.send_message(chat_id=message.chat.id, text="Пропуск удалён")
+    if truancy_date == "/stop":
+        bot.send_message(chat_id=message.chat.id, text="Действие прервано")
+    else:
+        middle.truancy_del(truancy_date, student_id)
+        bot.send_message(chat_id=message.chat.id, text="Пропуск удалён")
 
 bot.infinity_polling()
