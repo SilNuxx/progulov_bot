@@ -5,16 +5,16 @@ from datetime import datetime, timezone, timedelta
 def student_list():
     list_student = db.db_get_all_sort_student_list()
 
-    out_str = "ID | NAME\n\n"
+    out_str = f"```\n{"ID":^2}¦ИМЯ\n"
     for i in list_student:
-        out_str += f"{i[0]} | {i[1]}\n"
-
+        out_str += f"{i[0]:^2}¦{i[1]}\n"
+    out_str += "```"
     return out_str
 
 # Получить информацию о студенте
 def student_info(student_id):
     student_info = db.db_get_student(student_id)
-    out_str = f"ID: {student_info[0]}\nNAME: {student_info[1]}"
+    out_str = f"ID: {student_info[0]}\nИМЯ: {student_info[1]}"
     return out_str
 
 # Добавить студента
@@ -30,10 +30,10 @@ def student_del(student_id):
 def truancy_list_all():
     list_truancy = db.db_list_truancy()
 
-    out_str = "DATE | ID | NAME | NUMBER | TYPE\n\n"
-    for i in list_truancy:        
-        out_str += f" {i[0]} | {i[1]} | {i[2]} | {i[3]} | {i[4]}\n"
-
+    out_str = f"```\n{"ДАТА":<10}¦КОЛ¦{"ТИП":<8}¦{"ID":^2}¦ИМЯ\n"
+    for i in list_truancy:
+        out_str += f"{i[0]}¦{i[3]:^3}¦{i[4]:<8}¦{i[1]:^2}¦{i[2]}\n"
+    out_str += "```"
     return out_str
 
 # Список прогулов за месяц
@@ -44,10 +44,10 @@ def truancy_list_month(month):
 
     list_truancy = db.db_get_all_truancy_for_month(truancy_date)
 
-    out_str = "DATE | ID | NAME | NUMBER | TYPE\n\n"
+    out_str = f"```\n{"ДАТА":<10}¦КОЛ¦{"ТИП":<8}¦{"ID":^2}¦ИМЯ\n"
     for i in list_truancy:             
-        out_str += f" {i[0]} | {i[1]} | {i[2]} | {i[3]} | {i[4]}\n"
-
+        out_str += f"{i[0]}¦{i[3]:^3}¦{i[4]:<8}¦{i[1]:^2}¦{i[2]}\n"
+    out_str += "```"
     return out_str
 
 # Добавить прогул
