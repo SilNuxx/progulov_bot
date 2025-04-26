@@ -26,13 +26,26 @@ def student_del(student_id):
     db.db_del_student(student_id)
 
 
-# Список прогулов
-def truancy_list():
+# Список всех прогулов
+def truancy_list_all():
     list_truancy = db.db_list_truancy()
 
     out_str = "DATE | ID | NAME | NUMBER | TYPE\n\n"
-    for i in list_truancy:
-        # for value in truancy: m                
+    for i in list_truancy:        
+        out_str += f" {i[0]} | {i[1]} | {i[2]} | {i[3]} | {i[4]}\n"
+
+    return out_str
+
+# Список прогулов за месяц
+def truancy_list_month(month):
+    truancy_date = datetime.strptime(month, r"%m-%y")
+    # truancy_date = truancy_date.replace(tzinfo=timezone(timedelta(hours=3)))
+    truancy_date = int(truancy_date.timestamp())
+
+    list_truancy = db.db_get_all_truancy_for_month(truancy_date)
+
+    out_str = "DATE | ID | NAME | NUMBER | TYPE\n\n"
+    for i in list_truancy:             
         out_str += f" {i[0]} | {i[1]} | {i[2]} | {i[3]} | {i[4]}\n"
 
     return out_str
@@ -40,13 +53,13 @@ def truancy_list():
 # Добавить прогул
 def truancy_add(student_id, truancy_number, truancy_type, truancy_date):
     truancy_date = datetime.strptime(truancy_date, r"%d-%m-%y")
-    truancy_date = truancy_date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone(timedelta(hours=3)))
+    # truancy_date = truancy_date.replace(tzinfo=timezone(timedelta(hours=3)))
     truancy_date = int(truancy_date.timestamp())
-    db.db_add_truancy(int(student_id), truancy_number, truancy_type, int(truancy_date))
+    db.db_add_truancy(int(student_id), truancy_number, truancy_type, truancy_date)
 
 # Удалить прогул
 def truancy_del(truancy_date, student_id):
     truancy_date = datetime.strptime(truancy_date, r"%d-%m-%y")
-    truancy_date = truancy_date.replace(hour=0, minute=0, second=0, microsecond=0, tzinfo=timezone(timedelta(hours=3)))
+    # truancy_date = truancy_date.replace(tzinfo=timezone(timedelta(hours=3)))
     truancy_date = int(truancy_date.timestamp())
-    db.db_del_truancy( int(truancy_date), int(student_id))
+    db.db_del_truancy(truancy_date, int(student_id))

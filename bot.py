@@ -19,7 +19,8 @@ def bot_starting_msg(message):
 
 /start - Список команд
 /help - Список команд
-/truancy_list - Список прогулов
+/truancy_list_all - Список всех прогулов
+/truancy_list_month - Список прогулов за месяц
 /truancy_add - Добавить прогул
 /truancy_del - Удалить прогул
 /student_list - Список всех студентов
@@ -67,10 +68,20 @@ def bot_student_del(message):
     middle.student_del(student_id)
     bot.send_message(chat_id=message.chat.id, text="Студент удалён")
 
-#  Список прогулов
-@bot.message_handler(commands=["truancy_list"]) 
-def bot_truancy_list(message):
-    bot.send_message(chat_id=message.chat.id, text=middle.truancy_list())
+#  Список всех прогулов
+@bot.message_handler(commands=["truancy_list_all"]) 
+def bot_truancy_list_all(message):
+    bot.send_message(chat_id=message.chat.id, text=middle.truancy_list_all())
+    
+#  Список прогулов за месяц
+@bot.message_handler(commands=["truancy_list_month"]) 
+def bot_truancy_list_month_get_month(message):
+    bot.send_message(chat_id=message.chat.id, text="Введите месяц и год\nММ-ГГ")
+    bot.register_next_step_handler(message, bot_truancy_list_month)
+
+def bot_truancy_list_month(message):
+    month = message.text.strip().lower()
+    bot.send_message(chat_id=message.chat.id, text=middle.truancy_list_month(month))
 
 # Добавить прогул
 @bot.message_handler(commands=["truancy_add"]) 
