@@ -1,53 +1,123 @@
-import telebot
-
-import middle
-import config
+import telebot, middle, config
 
 API_TOKEN = config.data["token"]
 
 bot = telebot.TeleBot(API_TOKEN)
 
-@bot.message_handler(commands=["start", "help"]) # Приветственное сообщение, кратко о назначении бота и основных функциях
+# Переменные для добавления прогулов
+student_id = ""
+truancy_date = ""
+truancy_number = ""
+truancy_type = ""
+
+# Приветственное сообщение, кратко о назначении бота и основных функциях
+@bot.message_handler(commands=["start", "help"]) 
 def bot_starting_msg(message):
+    # Записано в таком виде, чтобы корректно видеть отступы в сообщении.
     help_message = """
 Доступные команды:
 
-/start Список команд
+/start - Список команд
 /help - Список команд
-/new_student - Добавить студента в БД
-/del_student - Удалить студента из БД
-/list_students - Список всех студентов
-/info_student - Информация о студенте
-/add_truancy - Добавить прогул
-/del_truancy - Удалить прогул
-    """
+/truancy_list - Список прогулов
+/truancy_add - Добавить прогул
+/truancy_del - Удалить прогул
+/student_list - Список всех студентов
+/student_info - Информация о студенте
+/student_add - Добавить студента
+/student_del - Удалить студента
+"""
     
     bot.send_message(chat_id=message.chat.id, text=help_message)
 
-@bot.message_handler(commands=["new_student"]) # Добавить нового студента
-def bot_add_new_student(message):
+# Вывести список студентов
+@bot.message_handler(commands=["student_list"]) 
+def bot_student_list(message):
+    bot.send_message(chat_id=message.chat.id, text=middle.student_list())
+
+# Информация о студенте
+@bot.message_handler(commands=["student_info"]) 
+def bot_student_info(message):
+    bot.send_message(chat_id=message.chat.id, text="Введите ID студента")
+    bot.register_next_step_handler(message, bot_student_info_print)
+    
+def bot_student_info_print(message):
+    out_student_info = middle.student_info(message.text)
+    bot.send_message(chat_id=message.chat.id, text=out_student_info)
+
+# Добавить студента
+@bot.message_handler(commands=["student_add"]) 
+def bot_student_add_get_id(message):
     bot.send_message(chat_id=message.chat.id, text="Введите имя студента")
-    bot.register_next_step_handler(message, middle.add_student)
+    bot.register_next_step_handler(message, bot_student_add)
 
-@bot.message_handler(commands=["del_student"]) # Удалить студента
-def bot_del_student(message):
-    pass
+def bot_student_add(message):
+    student_name = message.text.strip()
+    middle.student_add(student_name)
+    bot.send_message(chat_id=message.chat.id, text="Студент добавлен")
 
-@bot.message_handler(commands=["list_students"]) # Вывести список студентов
-def bot_print_list_students(message):
-    bot.send_message(chat_id=message.chat.id, text=middle.get_all_students())
+# Удалить студента
+@bot.message_handler(commands=["student_del"]) 
+def bot_student_del_get_id(message):
+    bot.send_message(chat_id=message.chat.id, text="Введите ID студента")
+    bot.register_next_step_handler(message, bot_student_del)
 
-@bot.message_handler(commands=["info_student"]) # Информация о студенте
-def bot_print_info_student(message):
-    pass
+def bot_student_del(message):
+    student_id = message.text.strip()
+    middle.student_del(student_id)
+    bot.send_message(chat_id=message.chat.id, text="Студент удалён")
 
-@bot.message_handler(commands=["add_truancy"]) # Добавить  прогул
-def bot_register_truancy(message):
-    pass
+#  Список прогулов
+@bot.message_handler(commands=["truancy_list"]) 
+def bot_truancy_list(message):
+    bot.send_message(chat_id=message.chat.id, text=middle.truancy_list())
 
-@bot.message_handler(commands=["del_truancy"]) # Удалить прогул
-def bot_unregister_truancy(message):
-    pass
+# Добавить прогул
+@bot.message_handler(commands=["truancy_add"]) 
+def bot_truancy_add_get_id(message):
+    bot.send_message(chat_id=message.chat.id, text="Введите ID студента")
+    bot.register_next_step_handler(message, bot_truancy_add_get_truancy_date)
 
+def bot_truancy_add_get_truancy_date(message):
+    global student_id
+    student_id = message.text.strip()
+    bot.send_message(chat_id=message.chat.id, text="Введите дату пропуска\nДД-ММ-ГГ")
+    bot.register_next_step_handler(message, bot_truancy_add_get_truancy_number)
+    
+def bot_truancy_add_get_truancy_number(message):
+    global truancy_date
+    truancy_date = message.text.strip()
+    bot.send_message(chat_id=message.chat.id, text="Введите количество пропущенных занятий")
+    bot.register_next_step_handler(message, bot_truancy_add_get_truancy_type)
+
+def bot_truancy_add_get_truancy_type(message):
+    global truancy_number
+    truancy_number = int(message.text)
+    bot.send_message(chat_id=message.chat.id, text="Введите тип/причину пропуска")
+    bot.register_next_step_handler(message, bot_truancy_add_get_truancy)
+
+def bot_truancy_add_get_truancy(message):
+    global truancy_type
+    truancy_type = message.text.strip()
+    middle.truancy_add(student_id, truancy_number, truancy_type, truancy_date)
+    bot.send_message(chat_id=message.chat.id, text="Пропуск добавлен")
+
+# Удалить прогул
+@bot.message_handler(commands=["truancy_del"]) 
+def bot_truancy_del_get_id(message):
+    bot.send_message(chat_id=message.chat.id, text="Введите ID студента")
+    bot.register_next_step_handler(message, bot_truancy_del_get_truancy_date)
+
+def bot_truancy_del_get_truancy_date(message):
+    global student_id
+    student_id = message.text.strip()
+    bot.send_message(chat_id=message.chat.id, text="Введите дату пропуска\nДД-ММ-ГГ")
+    bot.register_next_step_handler(message, bot_truancy_del)
+
+def bot_truancy_del(message):
+    global truancy_date
+    truancy_date = message.text.strip()
+    middle.truancy_del(truancy_date, student_id)
+    bot.send_message(chat_id=message.chat.id, text="Пропуск удалён")
 
 bot.infinity_polling()
