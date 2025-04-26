@@ -14,7 +14,7 @@ def student_list():
 # Получить информацию о студенте
 def student_info(student_id):
     student_info = db.db_get_student(student_id)
-    out_str = f"ID: {student_info[0]}\nИМЯ: {student_info[1]}"
+    out_str = f"*ID:* {student_info[0]}\n*ИМЯ:* {student_info[1]}"
     return out_str
 
 # Добавить студента
@@ -56,7 +56,7 @@ def truancy_add(student_id, truancy_number, truancy_type, truancy_date):
     db.db_add_truancy(int(student_id), truancy_number, truancy_type, truancy_date)
 
 # Удалить прогул
-def truancy_del(truancy_date, student_id):
+def truancy_del(student_id, truancy_date):
     truancy_date = datetime.strptime(truancy_date, r"%d-%m-%y")
     truancy_date = int(truancy_date.timestamp())
     db.db_del_truancy(truancy_date, int(student_id))

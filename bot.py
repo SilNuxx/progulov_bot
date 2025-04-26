@@ -40,18 +40,28 @@ def bot_student_list(message):
 # Информация о студенте
 @bot.message_handler(commands=["student_info"]) 
 def bot_student_info(message):
-    bot.send_message(chat_id=message.chat.id, text="Введите *ID* студента", parse_mode="markdown")
-    bot.register_next_step_handler(message, bot_student_info_print)
+    if len(message.text.strip().split()) > 1:
+        args = message.text.strip().split()[1]
+        out_str = middle.student_info(args)
+        bot.send_message(chat_id=message.chat.id, text=out_str, parse_mode="markdown")
+    else:
+        bot.send_message(chat_id=message.chat.id, text="Введите *ID* студента", parse_mode="markdown")
+        bot.register_next_step_handler(message, bot_student_info_print)
     
 def bot_student_info_print(message):
     out_student_info = middle.student_info(message.text)
-    bot.send_message(chat_id=message.chat.id, text=out_student_info)
+    bot.send_message(chat_id=message.chat.id, text=out_student_info, parse_mode="markdown")
 
 # Добавить студента
 @bot.message_handler(commands=["student_add"]) 
 def bot_student_add_get_id(message):
-    bot.send_message(chat_id=message.chat.id, text="Введите *ФИО* студента\n_(/stop - Прервать действие)_", parse_mode="markdown")
-    bot.register_next_step_handler(message, bot_student_add)
+    if len(message.text.strip().split()) > 1:
+        args = " ".join(message.text.strip().split()[1:])
+        out_str = middle.student_add(args)
+        bot.send_message(chat_id=message.chat.id, text="Студент добавлен")
+    else:
+        bot.send_message(chat_id=message.chat.id, text="Введите *ФИО* студента\n_(/stop - Прервать действие)_", parse_mode="markdown")
+        bot.register_next_step_handler(message, bot_student_add)
 
 def bot_student_add(message):
     student_name = message.text.strip()
@@ -64,8 +74,13 @@ def bot_student_add(message):
 # Удалить студента
 @bot.message_handler(commands=["student_del"]) 
 def bot_student_del_get_id(message):
-    bot.send_message(chat_id=message.chat.id, text="Введите *ID* студента\n_(/stop - Прервать действие)_", parse_mode="markdown")
-    bot.register_next_step_handler(message, bot_student_del)
+    if len(message.text.strip().split()) > 1:
+        args = message.text.strip().split()[1]
+        out_str = middle.student_del(args)
+        bot.send_message(chat_id=message.chat.id, text="Студент удалён")
+    else:
+        bot.send_message(chat_id=message.chat.id, text="Введите *ID* студента\n_(/stop - Прервать действие)_", parse_mode="markdown")
+        bot.register_next_step_handler(message, bot_student_del)
 
 def bot_student_del(message):
     student_id = message.text.strip()
@@ -83,8 +98,13 @@ def bot_truancy_list_all(message):
 #  Список прогулов за месяц
 @bot.message_handler(commands=["truancy_list_month"]) 
 def bot_truancy_list_month_get_month(message):
-    bot.send_message(chat_id=message.chat.id, text="Введите *ММ-ГГ*\n_(/stop - Прервать действие)_", parse_mode="markdown")
-    bot.register_next_step_handler(message, bot_truancy_list_month)
+    if len(message.text.strip().split()) > 1:
+        args = message.text.strip().split()[1]
+        out_student_info = middle.truancy_list_month(args)
+        bot.send_message(chat_id=message.chat.id, text=out_student_info, parse_mode="markdown")
+    else:
+        bot.send_message(chat_id=message.chat.id, text="Введите *ММ-ГГ*\n_(/stop - Прервать действие)_", parse_mode="markdown")
+        bot.register_next_step_handler(message, bot_truancy_list_month)
 
 def bot_truancy_list_month(message):
     month = message.text.strip().lower()
@@ -96,8 +116,13 @@ def bot_truancy_list_month(message):
 # Добавить прогул
 @bot.message_handler(commands=["truancy_add"]) 
 def bot_truancy_add_get_id(message):
-    bot.send_message(chat_id=message.chat.id, text="Введите *ID* студента\n_(/stop - Прервать действие)_", parse_mode="markdown")
-    bot.register_next_step_handler(message, bot_truancy_add_get_truancy_date)
+    if len(message.text.strip().split()) > 1:
+        args = message.text.strip().split()[1:]
+        out_student_info = middle.truancy_add(*args)
+        bot.send_message(chat_id=message.chat.id, text="Пропуск добавлен")
+    else:
+        bot.send_message(chat_id=message.chat.id, text="Введите *ID* студента\n_(/stop - Прервать действие)_", parse_mode="markdown")
+        bot.register_next_step_handler(message, bot_truancy_add_get_truancy_date)
 
 def bot_truancy_add_get_truancy_date(message):
     global student_id
@@ -138,8 +163,13 @@ def bot_truancy_add_get_truancy(message):
 # Удалить прогул
 @bot.message_handler(commands=["truancy_del"]) 
 def bot_truancy_del_get_id(message):
-    bot.send_message(chat_id=message.chat.id, text="Введите *ID* студента\n_(/stop - Прервать действие)_", parse_mode="markdown")
-    bot.register_next_step_handler(message, bot_truancy_del_get_truancy_date)
+    if len(message.text.strip().split()) > 1:
+        args = message.text.strip().split()[1:]
+        out_student_info = middle.truancy_del(*args)
+        bot.send_message(chat_id=message.chat.id, text="Пропуск удалён")
+    else:
+        bot.send_message(chat_id=message.chat.id, text="Введите *ID* студента\n_(/stop - Прервать действие)_", parse_mode="markdown")
+        bot.register_next_step_handler(message, bot_truancy_del_get_truancy_date)
 
 def bot_truancy_del_get_truancy_date(message):
     global student_id
