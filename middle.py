@@ -1,6 +1,9 @@
 import database as db
 from datetime import datetime, timezone, timedelta
 
+import report
+import config
+
 # Вывести список студентов
 def student_list():
     list_student = db.db_get_all_sort_student_list()
@@ -60,3 +63,23 @@ def truancy_del(student_id, truancy_date):
     truancy_date = datetime.strptime(truancy_date, r"%d-%m-%y")
     truancy_date = int(truancy_date.timestamp())
     db.db_del_truancy(truancy_date, int(student_id))
+
+# Генерация отчёта за месяц
+def generate_report(date, group: str):
+    truancy_date = datetime.strptime(date, r"%m-%y")
+
+    # Создание заголовка
+    title = "Сводная ведомость посещаемости учебных занятий группы"
+    report_info = f"{group} за {config.month[truancy_date.month]} {truancy_date.year} года"
+
+    pdf = report.Report()
+    pdf.create_headers(title, report_info)
+
+    # Получение всех записей
+    list_truancy = db.db_get_all_truancy_for_month(int(truancy_date.timestamp()))
+    
+    # Создание таблицы
+    pdf.create_table(list_truancy)
+
+    # Создание файла
+    pdf.output(config.data["report_file"])
