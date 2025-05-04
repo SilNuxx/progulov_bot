@@ -4,12 +4,8 @@ API_TOKEN = config.data["token"]
 
 bot = telebot.TeleBot(API_TOKEN)
 
-# Переменные для добавления прогулов
-student_id = ""
-truancy_date = ""
-truancy_number = ""
-truancy_type = ""
-group_name = ""
+# Список аргументов команды
+args = []
 
 # Приветственное сообщение, кратко о назначении бота и основных функциях
 @bot.message_handler(commands=["start", "help"]) 
@@ -43,8 +39,8 @@ def bot_student_list(message):
 @bot.message_handler(commands=["student_info"]) 
 def bot_student_info(message):
     if len(message.text.strip().split()) > 1:
-        args = message.text.strip().split()[1]
-        out_str = middle.student_info(args)
+        student_id = message.text.strip().split()[1]
+        out_str = middle.student_info(student_id)
         bot.send_message(chat_id=message.chat.id, text=out_str, parse_mode="markdown")
     else:
         bot.send_message(chat_id=message.chat.id, text="Введите *ID* студента", parse_mode="markdown")
@@ -58,8 +54,8 @@ def bot_student_info_print(message):
 @bot.message_handler(commands=["student_add"]) 
 def bot_student_add_get_id(message):
     if len(message.text.strip().split()) > 1:
-        args = " ".join(message.text.strip().split()[1:])
-        out_str = middle.student_add(args)
+        student_name = " ".join(message.text.strip().split()[1:])
+        out_str = middle.student_add(student_name)
         bot.send_message(chat_id=message.chat.id, text="Студент добавлен")
     else:
         bot.send_message(chat_id=message.chat.id, text="Введите *ФИО* студента\n_(/stop - Прервать действие)_", parse_mode="markdown")
@@ -77,8 +73,8 @@ def bot_student_add(message):
 @bot.message_handler(commands=["student_del"]) 
 def bot_student_del_get_id(message):
     if len(message.text.strip().split()) > 1:
-        args = message.text.strip().split()[1]
-        out_str = middle.student_del(args)
+        student_id = message.text.strip().split()[1]
+        out_str = middle.student_del(student_id)
         bot.send_message(chat_id=message.chat.id, text="Студент удалён")
     else:
         bot.send_message(chat_id=message.chat.id, text="Введите *ID* студента\n_(/stop - Прервать действие)_", parse_mode="markdown")
@@ -101,19 +97,19 @@ def bot_truancy_list_all(message):
 @bot.message_handler(commands=["truancy_list_month"]) 
 def bot_truancy_list_month_get_month(message):
     if len(message.text.strip().split()) > 1:
-        args = message.text.strip().split()[1]
-        out_student_info = middle.truancy_list_month(args)
+        truancy_month = message.text.strip().split()[1]
+        out_student_info = middle.truancy_list_month(truancy_month)
         bot.send_message(chat_id=message.chat.id, text=out_student_info, parse_mode="markdown")
     else:
         bot.send_message(chat_id=message.chat.id, text="Введите *ММ-ГГ*\n_(/stop - Прервать действие)_", parse_mode="markdown")
         bot.register_next_step_handler(message, bot_truancy_list_month)
 
 def bot_truancy_list_month(message):
-    month = message.text.strip().lower()
-    if month == "/stop":
+    truancy_month = message.text.strip().lower()
+    if truancy_month == "/stop":
         bot.send_message(chat_id=message.chat.id, text="Действие прервано")
     else:
-        bot.send_message(chat_id=message.chat.id, text=middle.truancy_list_month(month), parse_mode="markdown")
+        bot.send_message(chat_id=message.chat.id, text=middle.truancy_list_month(truancy_month), parse_mode="markdown")
 
 # Добавить прогул
 @bot.message_handler(commands=["truancy_add"]) 
@@ -127,39 +123,48 @@ def bot_truancy_add_get_id(message):
         bot.register_next_step_handler(message, bot_truancy_add_get_truancy_date)
 
 def bot_truancy_add_get_truancy_date(message):
-    global student_id
+    global args
     student_id = message.text.strip()
     if student_id == "/stop":
+        args.clear()
         bot.send_message(chat_id=message.chat.id, text="Действие прервано")
     else:
+        args.append(student_id)
         bot.send_message(chat_id=message.chat.id, text="Введите *ДД-ММ-ГГ* пропуска\n_(/stop - Прервать действие)_", parse_mode="markdown")
         bot.register_next_step_handler(message, bot_truancy_add_get_truancy_number)
     
 def bot_truancy_add_get_truancy_number(message):
-    global truancy_date
+    global args
     truancy_date = message.text.strip()
     if truancy_date == "/stop":
+        args.clear()
         bot.send_message(chat_id=message.chat.id, text="Действие прервано")
     else:
+        args.append(truancy_date)
         bot.send_message(chat_id=message.chat.id, text="Введите *КОЛИЧЕСТВО* пропущенных занятий\n_(/stop - Прервать действие)_", parse_mode="markdown")
         bot.register_next_step_handler(message, bot_truancy_add_get_truancy_type)
 
 def bot_truancy_add_get_truancy_type(message):
-    global truancy_number
-    truancy_number = message.text
+    global args
+    truancy_number = message.text.strip()
     if truancy_number == "/stop":
+        args.clear()
         bot.send_message(chat_id=message.chat.id, text="Действие прервано")
     else:
+        args.append(truancy_number)
         bot.send_message(chat_id=message.chat.id, text="Введите *ПРИЧИНУ* пропуска\n_(/stop - Прервать действие)_", parse_mode="markdown")
-        bot.register_next_step_handler(message, bot_truancy_add_get_truancy)
+        bot.register_next_step_handler(message, bot_truancy_add)
 
-def bot_truancy_add_get_truancy(message):
-    global truancy_type
+def bot_truancy_add(message):
+    global args
     truancy_type = message.text.strip()
     if truancy_type == "/stop":
+        args.clear()
         bot.send_message(chat_id=message.chat.id, text="Действие прервано")
     else:
-        middle.truancy_add(student_id, truancy_number, truancy_type, truancy_date)
+        args.append(truancy_type)
+        middle.truancy_add(*args)
+        args.clear()
         bot.send_message(chat_id=message.chat.id, text="Пропуск добавлен")
 
 # Удалить прогул
@@ -174,21 +179,26 @@ def bot_truancy_del_get_id(message):
         bot.register_next_step_handler(message, bot_truancy_del_get_truancy_date)
 
 def bot_truancy_del_get_truancy_date(message):
-    global student_id
+    global args
     student_id = message.text.strip()
     if student_id == "/stop":
+        args.clear()
         bot.send_message(chat_id=message.chat.id, text="Действие прервано")
     else:
+        args.append(student_id)
         bot.send_message(chat_id=message.chat.id, text="Введите *ДД-ММ-ГГ* пропуска\n_(/stop - Прервать действие)_", parse_mode="markdown")
         bot.register_next_step_handler(message, bot_truancy_del)
 
 def bot_truancy_del(message):
-    global truancy_date
+    global args
     truancy_date = message.text.strip()
     if truancy_date == "/stop":
+        args.clear()
         bot.send_message(chat_id=message.chat.id, text="Действие прервано")
     else:
-        middle.truancy_del(truancy_date, student_id)
+        args.append(truancy_date)
+        middle.truancy_del(*args)
+        args.clear()
         bot.send_message(chat_id=message.chat.id, text="Пропуск удалён")
 
 # Создать отчёт за месяц
@@ -204,21 +214,26 @@ def bot_report_get_date(message):
         bot.register_next_step_handler(message, bot_report_get_group_name)
 
 def bot_report_get_group_name(message):
-    global truancy_date
+    global args
     truancy_date = message.text.strip()
     if truancy_date == "/stop":
+        args.clear()
         bot.send_message(chat_id=message.chat.id, text="Действие прервано")
     else:
+        args.append(truancy_date)
         bot.send_message(chat_id=message.chat.id, text="Введите *ГРУППА*\n_(/stop - Прервать действие)_", parse_mode="markdown")
         bot.register_next_step_handler(message, bot_report)
 
 def bot_report(message):
-    global group_name
+    global args
     group_name = message.text.strip()
     if group_name == "/stop":
+        args.clear()
         bot.send_message(chat_id=message.chat.id, text="Действие прервано")
     else:
-        middle.generate_report(truancy_date, group_name)
+        args.append(group_name)
+        middle.generate_report(*args)
+        args.clear()
         report_file = open(config.data["report_file"], "rb")
         bot.send_document(message.chat.id, report_file)
 
