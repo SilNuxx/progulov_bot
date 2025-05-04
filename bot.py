@@ -9,6 +9,7 @@ student_id = ""
 truancy_date = ""
 truancy_number = ""
 truancy_type = ""
+group_name = ""
 
 # Приветственное сообщение, кратко о назначении бота и основных функциях
 @bot.message_handler(commands=["start", "help"]) 
@@ -19,6 +20,7 @@ def bot_starting_msg(message):
 
 /start - Список команд
 /help - Список команд
+/report - Создать отчёт за месяц
 /truancy\_list\_all - Список всех прогулов
 /truancy\_list\_month - Список прогулов за месяц
 /truancy\_add - Добавить прогул
@@ -188,5 +190,36 @@ def bot_truancy_del(message):
     else:
         middle.truancy_del(truancy_date, student_id)
         bot.send_message(chat_id=message.chat.id, text="Пропуск удалён")
+
+# Создать отчёт за месяц
+@bot.message_handler(commands=["report"]) 
+def bot_report_get_date(message):
+    if len(message.text.strip().split()) > 1:
+        args = message.text.strip().split()[1:]
+        middle.generate_report(*args)
+        report_file = open(config.data["report_file"], "rb")
+        bot.send_document(message.chat.id, report_file)
+    else:
+        bot.send_message(chat_id=message.chat.id, text="Введите *ММ-ГГ*\n_(/stop - Прервать действие)_", parse_mode="markdown")
+        bot.register_next_step_handler(message, bot_report_get_group_name)
+
+def bot_report_get_group_name(message):
+    global truancy_date
+    truancy_date = message.text.strip()
+    if truancy_date == "/stop":
+        bot.send_message(chat_id=message.chat.id, text="Действие прервано")
+    else:
+        bot.send_message(chat_id=message.chat.id, text="Введите *ГРУППА*\n_(/stop - Прервать действие)_", parse_mode="markdown")
+        bot.register_next_step_handler(message, bot_report)
+
+def bot_report(message):
+    global group_name
+    group_name = message.text.strip()
+    if group_name == "/stop":
+        bot.send_message(chat_id=message.chat.id, text="Действие прервано")
+    else:
+        middle.generate_report(truancy_date, group_name)
+        report_file = open(config.data["report_file"], "rb")
+        bot.send_document(message.chat.id, report_file)
 
 bot.infinity_polling()
