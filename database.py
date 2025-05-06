@@ -66,14 +66,14 @@ def db_list_truancy():
     with sqlite3.connect(config.data["database_file"]) as db:
         cur = db.cursor()
 
-        cur.execute("""SELECT strftime("%d-%m-%Y", date(truancy_date, 'unixepoch')), Truancy.student_id, student_name, truancy_number, truancy_type FROM Truancy INNER JOIN Student ON Student.student_id = Truancy.student_id""")
+        cur.execute("""SELECT strftime("%d-%m-%Y", date(truancy_date, 'unixepoch', 'localtime')), Truancy.student_id, student_name, truancy_number, truancy_type FROM Truancy INNER JOIN Student ON Student.student_id = Truancy.student_id""")
         return cur.fetchall()
 
 def db_get_all_truancy_for_month(unixepoch):
     with sqlite3.connect(config.data["database_file"]) as db:
         cur = db.cursor()
 
-        cur.execute(f"""SELECT strftime("%d-%m-%Y", date(truancy_date, 'unixepoch')), Truancy.student_id, student_name, truancy_number, truancy_type FROM Truancy INNER JOIN Student ON Student.student_id = Truancy.student_id WHERE date(truancy_date, 'unixepoch') BETWEEN date({unixepoch}, 'unixepoch', 'start of month') AND date({unixepoch}, 'unixepoch', 'start of month', '+1 month')""")
+        cur.execute(f"""SELECT strftime("%d-%m-%Y", date(truancy_date, 'unixepoch', 'localtime')), Truancy.student_id, student_name, truancy_number, truancy_type FROM Truancy INNER JOIN Student ON Student.student_id = Truancy.student_id WHERE date(truancy_date, 'unixepoch') BETWEEN date({unixepoch}, 'unixepoch', 'localtime', 'start of month') AND date({unixepoch}, 'unixepoch', 'localtime', 'start of month', '+1 month')""")
         return cur.fetchall()
 
 def console(command): # Для проверки, чтобы не городить миллион ненужных функций

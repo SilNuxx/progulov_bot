@@ -1,5 +1,5 @@
 import database as db
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
 
 import report
 import config
@@ -41,7 +41,7 @@ def truancy_list_all():
 
 # Список прогулов за месяц
 def truancy_list_month(month):
-    truancy_date = datetime.strptime(month, r"%m-%y")
+    truancy_date = datetime.strptime(month, "%m-%y")
     truancy_date = int(truancy_date.timestamp())
 
     list_truancy = db.db_get_all_truancy_for_month(truancy_date)
@@ -53,20 +53,20 @@ def truancy_list_month(month):
     return out_str
 
 # Добавить прогул
-def truancy_add(student_id, truancy_number, truancy_type, truancy_date):
-    truancy_date = datetime.strptime(truancy_date, r"%d-%m-%y")
+def truancy_add(student_id, truancy_date, truancy_number, truancy_type):
+    truancy_date = datetime.strptime(truancy_date, "%d-%m-%y")
     truancy_date = int(truancy_date.timestamp())
     db.db_add_truancy(int(student_id), truancy_number, truancy_type, truancy_date)
 
 # Удалить прогул
 def truancy_del(student_id, truancy_date):
-    truancy_date = datetime.strptime(truancy_date, r"%d-%m-%y")
+    truancy_date = datetime.strptime(truancy_date, "%d-%m-%y")
     truancy_date = int(truancy_date.timestamp())
     db.db_del_truancy(truancy_date, int(student_id))
 
 # Генерация отчёта за месяц
 def generate_report(date, group: str):
-    truancy_date = datetime.strptime(date, r"%m-%y")
+    truancy_date = datetime.strptime(date, "%m-%y")
 
     # Создание заголовка
     title = "Сводная ведомость посещаемости учебных занятий группы"
