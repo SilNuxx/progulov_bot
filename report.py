@@ -19,8 +19,8 @@ class Report(FPDF):
             self.cell(width, 10, string)
             self.ln(10)
 
-    def create_table(self, list_truancy):
-        self.set_font("Times New Roman", size=12)
+    def create_table(self, list_truancy: list):
+        self.set_font("Times New Roman", size=16)
 
         with self.table(
             first_row_as_headings=False,
@@ -46,4 +46,9 @@ class Report(FPDF):
             second_row.cell("без уваж.")
 
             # Заполнение таблицы
-        
+            for i, row in enumerate(list_truancy):
+                student_name, reason = row[2], row[4]
+                table_row = table.row()
+                table_row.cell(f"\n{i+1}")
+                table_row.cell(f"\n{student_name}")
+                table_row.cell(f"\n{reason}")

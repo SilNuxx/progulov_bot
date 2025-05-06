@@ -83,3 +83,5 @@ def generate_report(date, group: str):
 
     # Создание файла
     pdf.output(config.data["report_file"])
+
+generate_report("03-25", "A2289")
