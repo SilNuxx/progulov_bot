@@ -77,14 +77,14 @@ def bot_student_del(message):
 #  Список всех прогулов
 @bot.message_handler(commands=["truancy_list_all"]) 
 def bot_truancy_list_all(message):
-    bot.send_message(chat_id=message.chat.id, text=middle.truancy_list_all(), parse_mode="markdown")
+    bot.send_message(chat_id=message.chat.id, text=middle.truancy_list(), parse_mode="markdown")
     
 #  Список прогулов за месяц
 @bot.message_handler(commands=["truancy_list_month"]) 
 def bot_truancy_list_month_get_month(message):
     if len(message.text.strip().split()) > 1:
         truancy_month = message.text.strip().split()[1]
-        out_student_info = middle.truancy_list_month(truancy_month)
+        out_student_info = middle.truancy_list(truancy_month)
         bot.send_message(chat_id=message.chat.id, text=out_student_info, parse_mode="markdown")
     else:
         bot.send_message(chat_id=message.chat.id, text="Введите *ММ-ГГ*\n_(/stop - Прервать действие)_", parse_mode="markdown")
@@ -95,7 +95,7 @@ def bot_truancy_list_month(message):
     if truancy_month == "/stop":
         bot.send_message(chat_id=message.chat.id, text="Действие прервано")
     else:
-        bot.send_message(chat_id=message.chat.id, text=middle.truancy_list_month(truancy_month), parse_mode="markdown")
+        bot.send_message(chat_id=message.chat.id, text=middle.truancy_list(truancy_month), parse_mode="markdown")
 
 # Добавить прогул
 @bot.message_handler(commands=["truancy_add"]) 

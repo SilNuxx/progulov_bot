@@ -1,5 +1,6 @@
 import database as db
 from datetime import datetime
+from prettytable import PrettyTable
 
 import report
 import config
@@ -23,27 +24,31 @@ def student_del(student_id):
     db.db_del_student(int(student_id))
 
 
-# Список всех прогулов
-def truancy_list_all():
-    list_truancy = db.db_list_truancy()
-    #? Как-нибудь потом привести в вид божеский
-    out_str = f"```nix\n{"ДАТА":<10}¦КОЛ¦{"ТИП":<8}¦ID¦ИМЯ\n"
+# Список всех прогулов или за конкретный месяц
+def truancy_list(month=None):
+    if month != None:
+        truancy_date = datetime.strptime(month, "%m-%y")
+        truancy_date = int(truancy_date.timestamp())
+        list_truancy = db.db_get_all_truancy_for_month(truancy_date)
+    else:
+        list_truancy = db.db_list_truancy()
+    
+    table = PrettyTable()
+    table.align = "l"
+    table.field_names = ["ID", "ИМЯ", "КОЛ", "ТИП", "ДАТА"] 
     for i in list_truancy:
-        out_str += f"{i[0]}¦{i[3]:^3}¦{i[4]:<8}¦{i[1]:^2}¦{i[2]}\n"
-    out_str += "```"
-    return out_str
-
-# Список прогулов за месяц
-def truancy_list_month(month):
-    truancy_date = datetime.strptime(month, "%m-%y")
-    truancy_date = int(truancy_date.timestamp())
-
-    list_truancy = db.db_get_all_truancy_for_month(truancy_date)
-    #? Как-нибудь потом привести в вид божеский
-    out_str = f"```nix\n{"ДАТА":<10}¦КОЛ¦{"ТИП":<8}¦ID¦ИМЯ\n"
-    for i in list_truancy:             
-        out_str += f"{i[0]}¦{i[3]:^3}¦{i[4]:<8}¦{i[1]:^2}¦{i[2]}\n"
-    out_str += "```"
+        truancy_date, student_id, student_name, truancy_count, truancy_type = i
+        match truancy_type:
+            case 0:
+                truancy_type = "уваж"
+            case 1:
+                truancy_type = "болезнь"
+            case 2:
+                truancy_type = "неуваж"
+            case _:
+                pass
+        table.add_row([student_id, student_name, truancy_count, truancy_type, truancy_date])
+    out_str = f"```nix\n{table.get_formatted_string("text")}\n```"
     return out_str
 
 # Добавить прогул
