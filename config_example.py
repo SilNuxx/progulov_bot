@@ -19,3 +19,19 @@ month = { # Перечень месяцев на русском
 }
 # Шрифты что будут использоваться для генерации отчёта
 fonts = ["Times New Roman - Bold.ttf", "Times New Roman.ttf"]
+
+
+# Все команды бота для удобного добавления в BotFather
+"""
+start - Список команд
+help - Список команд
+report - Создать отчёт за месяц
+truancy_list_all - Список всех прогулов
+truancy_list_month - Список прогулов за месяц
+truancy_add - Добавить прогул
+truancy_del - Удалить прогул
+student_list - Список всех студентов
+student_add - Добавить студента
+student_del - Удалить студента
+stop - Прервать действие
+"""
