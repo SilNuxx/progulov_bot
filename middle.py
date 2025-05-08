@@ -14,25 +14,19 @@ def student_list():
     out_str += "```"
     return out_str
 
-# Получить информацию о студенте
-def student_info(student_id):
-    student_info = db.db_get_student(student_id)
-    out_str = f"*ID:* {student_info[0]}\n*ИМЯ:* {student_info[1]}"
-    return out_str
-
 # Добавить студента
 def student_add(student_name):
     db.db_add_student(student_name)
 
 # Удалить студента
 def student_del(student_id):
-    db.db_del_student(student_id)
+    db.db_del_student(int(student_id))
 
 
 # Список всех прогулов
 def truancy_list_all():
     list_truancy = db.db_list_truancy()
-
+    #? Как-нибудь потом привести в вид божеский
     out_str = f"```nix\n{"ДАТА":<10}¦КОЛ¦{"ТИП":<8}¦ID¦ИМЯ\n"
     for i in list_truancy:
         out_str += f"{i[0]}¦{i[3]:^3}¦{i[4]:<8}¦{i[1]:^2}¦{i[2]}\n"
@@ -45,7 +39,7 @@ def truancy_list_month(month):
     truancy_date = int(truancy_date.timestamp())
 
     list_truancy = db.db_get_all_truancy_for_month(truancy_date)
-
+    #? Как-нибудь потом привести в вид божеский
     out_str = f"```nix\n{"ДАТА":<10}¦КОЛ¦{"ТИП":<8}¦ID¦ИМЯ\n"
     for i in list_truancy:             
         out_str += f"{i[0]}¦{i[3]:^3}¦{i[4]:<8}¦{i[1]:^2}¦{i[2]}\n"
@@ -56,7 +50,7 @@ def truancy_list_month(month):
 def truancy_add(student_id, truancy_date, truancy_count, truancy_type):
     truancy_date = datetime.strptime(truancy_date, "%d-%m-%y")
     truancy_date = int(truancy_date.timestamp())
-    db.db_add_truancy(int(student_id), truancy_count, truancy_type, truancy_date)
+    db.db_add_truancy(int(student_id), int(truancy_count), int(truancy_type), truancy_date)
 
 # Удалить прогул
 def truancy_del(student_id, truancy_date):

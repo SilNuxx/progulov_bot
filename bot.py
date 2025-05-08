@@ -22,7 +22,6 @@ def bot_starting_msg(message):
 /truancy\_add - Добавить прогул
 /truancy\_del - Удалить прогул
 /student\_list - Список всех студентов
-/student\_info - Информация о студенте
 /student\_add - Добавить студента
 /student\_del - Удалить студента
 /stop - Прервать действие
@@ -34,21 +33,6 @@ def bot_starting_msg(message):
 @bot.message_handler(commands=["student_list"]) 
 def bot_student_list(message):
     bot.send_message(chat_id=message.chat.id, text=middle.student_list(), parse_mode="markdown")
-
-# Информация о студенте
-@bot.message_handler(commands=["student_info"]) 
-def bot_student_info(message):
-    if len(message.text.strip().split()) > 1:
-        student_id = message.text.strip().split()[1]
-        out_str = middle.student_info(student_id)
-        bot.send_message(chat_id=message.chat.id, text=out_str, parse_mode="markdown")
-    else:
-        bot.send_message(chat_id=message.chat.id, text="Введите *ID* студента", parse_mode="markdown")
-        bot.register_next_step_handler(message, bot_student_info_print)
-    
-def bot_student_info_print(message):
-    out_student_info = middle.student_info(message.text)
-    bot.send_message(chat_id=message.chat.id, text=out_student_info, parse_mode="markdown")
 
 # Добавить студента
 @bot.message_handler(commands=["student_add"]) 
@@ -131,9 +115,9 @@ def bot_truancy_add_get_truancy_date(message):
     else:
         args.append(student_id)
         bot.send_message(chat_id=message.chat.id, text="Введите *ДД-ММ-ГГ* пропуска\n_(/stop - Прервать действие)_", parse_mode="markdown")
-        bot.register_next_step_handler(message, bot_truancy_add_get_truancy_number)
+        bot.register_next_step_handler(message, bot_truancy_add_get_truancy_count)
     
-def bot_truancy_add_get_truancy_number(message):
+def bot_truancy_add_get_truancy_count(message):
     global args
     truancy_date = message.text.strip()
     if truancy_date == "/stop":
@@ -146,13 +130,22 @@ def bot_truancy_add_get_truancy_number(message):
 
 def bot_truancy_add_get_truancy_type(message):
     global args
-    truancy_number = message.text.strip()
-    if truancy_number == "/stop":
+    truancy_count = message.text.strip()
+    if truancy_count == "/stop":
         args.clear()
         bot.send_message(chat_id=message.chat.id, text="Действие прервано")
     else:
-        args.append(truancy_number)
-        bot.send_message(chat_id=message.chat.id, text="Введите *ПРИЧИНУ* пропуска\n_(/stop - Прервать действие)_", parse_mode="markdown")
+        args.append(truancy_count)
+        bot.send_message(
+            chat_id=message.chat.id, 
+            # Записано в таком виде, чтобы корректно видеть отступы в сообщении.
+            text="""
+Введите *ПРИЧИНУ* пропуска цифрой
+*0* - Уважительная
+*1* - По болезни
+*2* - Не уважительная
+_(/stop - Прервать действие)_""", 
+            parse_mode="markdown")
         bot.register_next_step_handler(message, bot_truancy_add)
 
 def bot_truancy_add(message):
