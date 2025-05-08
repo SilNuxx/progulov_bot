@@ -15,8 +15,8 @@ with sqlite3.connect(config.data["database_file"]) as db:
     CREATE TABLE IF NOT EXISTS Truancy (
 	truancy_date INTEGER NOT NULL,
 	student_id INTEGER FOREGIN KEY NOT NULL,
-    truancy_number INTEGER NOT NULL,
-	truancy_type TEXT NOT NULL,
+    truancy_count INTEGER NOT NULL,
+	truancy_type INTEGER NOT NULL,
 	PRIMARY KEY(truancy_date,student_id),
 	FOREIGN KEY(student_id) REFERENCES Student(student_id)
     );""")
@@ -50,11 +50,14 @@ def db_get_student(student_id): # Вывести информацию по од�
 
 # Работа с учётом прогулов
 
-def db_add_truancy(student_id, number, truancy_type, unixepoch): # Отметить прогул
-    with sqlite3.connect(config.data["database_file"]) as db:
-        cur = db.cursor()
+def db_add_truancy(student_id, number, truancy_type, unixepoch):
+    if truancy_type >= 0 and truancy_type < 3: # Отметить прогул
+        with sqlite3.connect(config.data["database_file"]) as db:
+            cur = db.cursor()
 
-        cur.execute(f"""INSERT INTO Truancy(truancy_date, student_id, truancy_number, truancy_type) VALUES ({unixepoch}, {student_id}, {number}, '{truancy_type}');""")
+            cur.execute(f"""INSERT INTO Truancy(truancy_date, student_id, truancy_count, truancy_type) VALUES ({unixepoch}, {student_id}, {number}, '{truancy_type}');""")
+    else:
+        print("Error: truancy_type is out of range")
 
 def db_del_truancy(unixepoch, student_id): # Отменить прогул
     with sqlite3.connect(config.data["database_file"]) as db:
@@ -62,18 +65,21 @@ def db_del_truancy(unixepoch, student_id): # Отменить прогул
 
         cur.execute(f"""DELETE FROM Truancy WHERE truancy_date = {unixepoch} AND student_id = {student_id}""")
 
-def db_list_truancy():
+def db_change_truancy():
+    pass
+
+def db_list_truancy(): # Вывод всех прогулов
     with sqlite3.connect(config.data["database_file"]) as db:
         cur = db.cursor()
 
-        cur.execute("""SELECT strftime("%d-%m-%Y", date(truancy_date, 'unixepoch', 'localtime')), Truancy.student_id, student_name, truancy_number, truancy_type FROM Truancy INNER JOIN Student ON Student.student_id = Truancy.student_id""")
+        cur.execute("""SELECT strftime("%d-%m-%Y", date(truancy_date, 'unixepoch', 'localtime')), Truancy.student_id, student_name, truancy_count, truancy_type FROM Truancy INNER JOIN Student ON Student.student_id = Truancy.student_id""")
         return cur.fetchall()
 
-def db_get_all_truancy_for_month(unixepoch):
+def db_get_all_truancy_for_month(unixepoch): # Вывод прогулов от начала и до конца указанного месяца
     with sqlite3.connect(config.data["database_file"]) as db:
         cur = db.cursor()
 
-        cur.execute(f"""SELECT strftime("%d-%m-%Y", date(truancy_date, 'unixepoch', 'localtime')), Truancy.student_id, student_name, truancy_number, truancy_type FROM Truancy INNER JOIN Student ON Student.student_id = Truancy.student_id WHERE date(truancy_date, 'unixepoch') BETWEEN date({unixepoch}, 'unixepoch', 'localtime', 'start of month') AND date({unixepoch}, 'unixepoch', 'localtime', 'start of month', '+1 month')""")
+        cur.execute(f"""SELECT strftime("%d-%m-%Y", date(truancy_date, 'unixepoch', 'localtime')), Truancy.student_id, student_name, truancy_count, truancy_type FROM Truancy INNER JOIN Student ON Student.student_id = Truancy.student_id WHERE date(truancy_date, 'unixepoch') BETWEEN date({unixepoch}, 'unixepoch', 'localtime', 'start of month') AND date({unixepoch}, 'unixepoch', 'localtime', 'start of month', '+1 month')""")
         return cur.fetchall()
 
 def console(command): # Для проверки, чтобы не городить миллион ненужных функций
