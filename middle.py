@@ -52,6 +52,14 @@ def truancy_add(student_id, truancy_date, truancy_count, truancy_type):
     truancy_date = int(truancy_date.timestamp())
     db.db_add_truancy(int(student_id), int(truancy_count), int(truancy_type), truancy_date)
 
+# Изменить запись прогула
+def truancy_upd(student_id, truancy_date, truancy_count, truancy_type):
+    if truancy_count == "/empty": truancy_count = None
+    if truancy_type == "/empty": truancy_type = None
+    truancy_date = datetime.strptime(truancy_date, "%d-%m-%y")
+    truancy_date = int(truancy_date.timestamp())
+    db.db_update_truancy(truancy_date, int(student_id), truancy_count, truancy_type)
+
 # Удалить прогул
 def truancy_del(student_id, truancy_date):
     truancy_date = datetime.strptime(truancy_date, "%d-%m-%y")

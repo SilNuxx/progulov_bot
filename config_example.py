@@ -30,8 +30,10 @@ truancy_list_all - Список всех прогулов
 truancy_list_month - Список прогулов за месяц
 truancy_add - Добавить прогул
 truancy_del - Удалить прогул
+truancy_update - Изменить запись прогула
 student_list - Список всех студентов
 student_add - Добавить студента
 student_del - Удалить студента
 stop - Прервать действие
+empty - Отправить пустое поле
 """

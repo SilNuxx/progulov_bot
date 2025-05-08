@@ -20,11 +20,13 @@ def bot_starting_msg(message):
 /truancy\_list\_all - Список всех прогулов
 /truancy\_list\_month - Список прогулов за месяц
 /truancy\_add - Добавить прогул
+/truancy\_update - Изменить запись прогула
 /truancy\_del - Удалить прогул
 /student\_list - Список всех студентов
 /student\_add - Добавить студента
 /student\_del - Удалить студента
 /stop - Прервать действие
+/empty - Отправить пустое поле
 """
     
     bot.send_message(chat_id=message.chat.id, text=help_message, parse_mode="markdown")
@@ -101,7 +103,7 @@ def bot_truancy_add_get_id(message):
     if len(message.text.strip().split()) > 1:
         args = message.text.strip().split()[1:]
         out_student_info = middle.truancy_add(*args)
-        bot.send_message(chat_id=message.chat.id, text="Пропуск добавлен")
+        bot.send_message(chat_id=message.chat.id, text="Прогул добавлен")
     else:
         bot.send_message(chat_id=message.chat.id, text="Введите *ID* студента\n_(/stop - Прервать действие)_", parse_mode="markdown")
         bot.register_next_step_handler(message, bot_truancy_add_get_truancy_date)
@@ -114,7 +116,7 @@ def bot_truancy_add_get_truancy_date(message):
         bot.send_message(chat_id=message.chat.id, text="Действие прервано")
     else:
         args.append(student_id)
-        bot.send_message(chat_id=message.chat.id, text="Введите *ДД-ММ-ГГ* пропуска\n_(/stop - Прервать действие)_", parse_mode="markdown")
+        bot.send_message(chat_id=message.chat.id, text="Введите *ДД-ММ-ГГ* прогула\n_(/stop - Прервать действие)_", parse_mode="markdown")
         bot.register_next_step_handler(message, bot_truancy_add_get_truancy_count)
     
 def bot_truancy_add_get_truancy_count(message):
@@ -140,7 +142,7 @@ def bot_truancy_add_get_truancy_type(message):
             chat_id=message.chat.id, 
             # Записано в таком виде, чтобы корректно видеть отступы в сообщении.
             text="""
-Введите *ПРИЧИНУ* пропуска цифрой
+Введите *ПРИЧИНУ* прогула цифрой
 *0* - Уважительная
 *1* - По болезни
 *2* - Не уважительная
@@ -158,7 +160,74 @@ def bot_truancy_add(message):
         args.append(truancy_type)
         middle.truancy_add(*args)
         args.clear()
-        bot.send_message(chat_id=message.chat.id, text="Пропуск добавлен")
+        bot.send_message(chat_id=message.chat.id, text="Прогул добавлен")
+
+# Изменить запись прогула 
+@bot.message_handler(commands=["truancy_update"]) 
+def bot_truancy_upd_get_id(message):
+    if len(message.text.strip().split()) > 1:
+        args = message.text.strip().split()[1:]
+        out_student_info = middle.truancy_upd(*args)
+        bot.send_message(chat_id=message.chat.id, text="Прогул изменён")
+    else:
+        bot.send_message(chat_id=message.chat.id, text="Введите *ID* студента\n_(/stop - Прервать действие)_", parse_mode="markdown")
+        bot.register_next_step_handler(message, bot_truancy_upd_get_truancy_date)
+
+def bot_truancy_upd_get_truancy_date(message):
+    global args
+    student_id = message.text.strip()
+    if student_id == "/stop":
+        args.clear()
+        bot.send_message(chat_id=message.chat.id, text="Действие прервано")
+    else:
+        args.append(student_id)
+        bot.send_message(chat_id=message.chat.id, text="Введите *ДД-ММ-ГГ* прогула\n_(/stop - Прервать действие)_", parse_mode="markdown")
+        bot.register_next_step_handler(message, bot_truancy_upd_get_truancy_count)
+
+def bot_truancy_upd_get_truancy_count(message):
+    global args
+    truancy_date = message.text.strip()
+    if truancy_date == "/stop":
+        args.clear()
+        bot.send_message(chat_id=message.chat.id, text="Действие прервано")
+    else:
+        args.append(truancy_date)
+        bot.send_message(chat_id=message.chat.id, text="Введите *КОЛИЧЕСТВО* пропущенных занятий\n_(/stop - Прервать действие)\n(/empty - Не изменять)_", parse_mode="markdown")
+        bot.register_next_step_handler(message, bot_truancy_upd_get_truancy_type)
+
+def bot_truancy_upd_get_truancy_type(message):
+    global args
+    truancy_count = message.text.strip()
+    if truancy_count == "/stop":
+        args.clear()
+        bot.send_message(chat_id=message.chat.id, text="Действие прервано")
+    else:
+        args.append(truancy_count)
+        bot.send_message(
+            chat_id=message.chat.id, 
+            # Записано в таком виде, чтобы корректно видеть отступы в сообщении.
+            text="""
+Введите *ПРИЧИНУ* прогула цифрой
+*0* - Уважительная
+*1* - По болезни
+*2* - Не уважительная
+_(/stop - Прервать действие)
+(/empty - Не изменять)_
+""", 
+            parse_mode="markdown")
+        bot.register_next_step_handler(message, bot_truancy_upd)
+
+def bot_truancy_upd(message):
+    global args
+    truancy_type = message.text.strip()
+    if truancy_type == "/stop":
+        args.clear()
+        bot.send_message(chat_id=message.chat.id, text="Действие прервано")
+    else:
+        args.append(truancy_type)
+        middle.truancy_upd(*args)
+        args.clear()
+        bot.send_message(chat_id=message.chat.id, text="Прогул изменён")
 
 # Удалить прогул
 @bot.message_handler(commands=["truancy_del"]) 
@@ -166,7 +235,7 @@ def bot_truancy_del_get_id(message):
     if len(message.text.strip().split()) > 1:
         args = message.text.strip().split()[1:]
         out_student_info = middle.truancy_del(*args)
-        bot.send_message(chat_id=message.chat.id, text="Пропуск удалён")
+        bot.send_message(chat_id=message.chat.id, text="Прогул удалён")
     else:
         bot.send_message(chat_id=message.chat.id, text="Введите *ID* студента\n_(/stop - Прервать действие)_", parse_mode="markdown")
         bot.register_next_step_handler(message, bot_truancy_del_get_truancy_date)
@@ -179,7 +248,7 @@ def bot_truancy_del_get_truancy_date(message):
         bot.send_message(chat_id=message.chat.id, text="Действие прервано")
     else:
         args.append(student_id)
-        bot.send_message(chat_id=message.chat.id, text="Введите *ДД-ММ-ГГ* пропуска\n_(/stop - Прервать действие)_", parse_mode="markdown")
+        bot.send_message(chat_id=message.chat.id, text="Введите *ДД-ММ-ГГ* прогула\n_(/stop - Прервать действие)_", parse_mode="markdown")
         bot.register_next_step_handler(message, bot_truancy_del)
 
 def bot_truancy_del(message):
@@ -192,7 +261,7 @@ def bot_truancy_del(message):
         args.append(truancy_date)
         middle.truancy_del(*args)
         args.clear()
-        bot.send_message(chat_id=message.chat.id, text="Пропуск удалён")
+        bot.send_message(chat_id=message.chat.id, text="Прогул удалён")
 
 # Создать отчёт за месяц
 @bot.message_handler(commands=["report"]) 
