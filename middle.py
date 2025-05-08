@@ -53,10 +53,10 @@ def truancy_list_month(month):
     return out_str
 
 # Добавить прогул
-def truancy_add(student_id, truancy_date, truancy_number, truancy_type):
+def truancy_add(student_id, truancy_date, truancy_count, truancy_type):
     truancy_date = datetime.strptime(truancy_date, "%d-%m-%y")
     truancy_date = int(truancy_date.timestamp())
-    db.db_add_truancy(int(student_id), truancy_number, truancy_type, truancy_date)
+    db.db_add_truancy(int(student_id), truancy_count, truancy_type, truancy_date)
 
 # Удалить прогул
 def truancy_del(student_id, truancy_date):

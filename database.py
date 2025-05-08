@@ -51,7 +51,7 @@ def db_get_student(student_id): # Вывести информацию по од�
 # Работа с учётом прогулов
 
 def db_add_truancy(student_id, number, truancy_type, unixepoch):
-    if truancy_type >= 0 and truancy_type < 3: # Отметить прогул
+    if int(truancy_type) >= 0 and int(truancy_type) < 3: # Отметить прогул
         with sqlite3.connect(config.data["database_file"]) as db:
             cur = db.cursor()
 
@@ -65,8 +65,16 @@ def db_del_truancy(unixepoch, student_id): # Отменить прогул
 
         cur.execute(f"""DELETE FROM Truancy WHERE truancy_date = {unixepoch} AND student_id = {student_id}""")
 
-def db_change_truancy():
-    pass
+def db_update_truancy(unixepoch, student_id, update_count=None, update_type=None):
+    with sqlite3.connect(config.data["database_file"]) as db:
+        cur = db.cursor()
+
+        if update_count != None and update_type != None:
+            cur.execute(f"""UPDATE Truancy SET truancy_count = {update_count}, truancy_type = {update_type} WHERE truancy_date == {unixepoch} AND student_id == {student_id}""")
+        elif update_count != None and update_type == None:
+            cur.execute(f"""UPDATE Truancy SET truancy_count = {update_count} WHERE truancy_date == {unixepoch} AND student_id == {student_id} """)
+        elif update_count == None and update_type != None:
+            cur.execute(f"""UPDATE Truancy SET truancy_type = {update_type} WHERE truancy_date == {unixepoch} AND student_id == {student_id}""")
 
 def db_list_truancy(): # Вывод всех прогулов
     with sqlite3.connect(config.data["database_file"]) as db:
